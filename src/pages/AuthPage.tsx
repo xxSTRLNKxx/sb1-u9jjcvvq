@@ -1,6 +1,6 @@
 import { useState, FormEvent } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Lock, Mail, User, Server } from 'lucide-react';
+import { Lock, Mail, User, Activity, ArrowRight, AlertCircle } from 'lucide-react';
 
 export function AuthPage() {
   const { signIn, signUp } = useAuth();
@@ -15,15 +15,11 @@ export function AuthPage() {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     try {
       const { error: authError } = isLogin
         ? await signIn(email, password)
         : await signUp(email, password, fullName);
-
-      if (authError) {
-        setError(authError.message);
-      }
+      if (authError) setError(authError.message);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -31,106 +27,550 @@ export function AuthPage() {
     }
   };
 
+  const switchMode = (login: boolean) => {
+    setIsLogin(login);
+    setError('');
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-lg mb-4">
-            <Server className="w-8 h-8 text-white" />
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap');
+
+        .auth-root {
+          min-height: 100vh;
+          background-color: #080C14;
+          display: flex;
+          font-family: 'Inter', sans-serif;
+          overflow: hidden;
+          position: relative;
+        }
+
+        /* Animated grid background */
+        .auth-root::before {
+          content: '';
+          position: fixed;
+          inset: 0;
+          background-image:
+            linear-gradient(rgba(30, 64, 175, 0.07) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(30, 64, 175, 0.07) 1px, transparent 1px);
+          background-size: 40px 40px;
+          mask-image: radial-gradient(ellipse 80% 80% at 50% 0%, black 30%, transparent 100%);
+          pointer-events: none;
+        }
+
+        /* Glow orbs */
+        .glow-orb {
+          position: fixed;
+          border-radius: 50%;
+          filter: blur(80px);
+          pointer-events: none;
+          opacity: 0.25;
+          animation: orbDrift 12s ease-in-out infinite alternate;
+        }
+        .glow-orb-1 {
+          width: 500px; height: 500px;
+          background: #1d4ed8;
+          top: -150px; left: -150px;
+          animation-delay: 0s;
+        }
+        .glow-orb-2 {
+          width: 350px; height: 350px;
+          background: #0e7490;
+          bottom: -100px; right: -80px;
+          animation-delay: -5s;
+          opacity: 0.18;
+        }
+        @keyframes orbDrift {
+          from { transform: translate(0, 0); }
+          to { transform: translate(30px, 20px); }
+        }
+
+        /* Left panel */
+        .auth-left {
+          display: none;
+          flex: 1;
+          flex-direction: column;
+          justify-content: space-between;
+          padding: 56px 64px;
+          position: relative;
+          z-index: 1;
+        }
+        @media (min-width: 1024px) {
+          .auth-left { display: flex; }
+        }
+
+        .brand-mark {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .brand-icon {
+          width: 38px; height: 38px;
+          background: #1d4ed8;
+          border-radius: 10px;
+          display: flex; align-items: center; justify-content: center;
+          box-shadow: 0 0 24px rgba(29, 78, 216, 0.5);
+        }
+        .brand-name {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 20px;
+          font-weight: 600;
+          color: #fff;
+          letter-spacing: -0.5px;
+        }
+
+        .left-headline {
+          max-width: 420px;
+        }
+        .left-headline h2 {
+          font-size: 44px;
+          font-weight: 300;
+          color: #fff;
+          line-height: 1.15;
+          letter-spacing: -1.5px;
+          margin: 0 0 20px;
+        }
+        .left-headline h2 strong {
+          font-weight: 600;
+          color: #60a5fa;
+        }
+        .left-headline p {
+          font-size: 15px;
+          color: #6b7280;
+          line-height: 1.7;
+          margin: 0;
+        }
+
+        .stat-row {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 16px;
+        }
+        .stat-card {
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 12px;
+          padding: 20px 16px;
+        }
+        .stat-value {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 28px;
+          font-weight: 600;
+          color: #fff;
+          margin-bottom: 4px;
+        }
+        .stat-label {
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          color: #4b5563;
+          font-weight: 500;
+        }
+
+        /* Right panel / form */
+        .auth-right {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 32px 24px;
+          position: relative;
+          z-index: 1;
+        }
+        @media (min-width: 1024px) {
+          .auth-right {
+            width: 480px;
+            flex-shrink: 0;
+            border-left: 1px solid rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.015);
+            backdrop-filter: blur(12px);
+            padding: 48px 56px;
+          }
+        }
+
+        .form-card {
+          width: 100%;
+          max-width: 400px;
+        }
+
+        /* Mobile brand */
+        .mobile-brand {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 40px;
+        }
+        @media (min-width: 1024px) {
+          .mobile-brand { display: none; }
+        }
+
+        .form-heading {
+          margin-bottom: 32px;
+        }
+        .form-heading h1 {
+          font-size: 26px;
+          font-weight: 600;
+          color: #fff;
+          letter-spacing: -0.5px;
+          margin: 0 0 6px;
+        }
+        .form-heading p {
+          font-size: 14px;
+          color: #6b7280;
+          margin: 0;
+        }
+
+        /* Tab switcher */
+        .tab-switch {
+          display: flex;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 10px;
+          padding: 4px;
+          margin-bottom: 28px;
+        }
+        .tab-btn {
+          flex: 1;
+          padding: 8px;
+          border: none;
+          border-radius: 7px;
+          font-size: 13px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+          background: transparent;
+          color: #6b7280;
+        }
+        .tab-btn.active {
+          background: #1d4ed8;
+          color: #fff;
+          box-shadow: 0 2px 8px rgba(29, 78, 216, 0.35);
+        }
+        .tab-btn:not(.active):hover {
+          color: #d1d5db;
+        }
+
+        /* Error */
+        .error-box {
+          display: flex;
+          align-items: flex-start;
+          gap: 10px;
+          background: rgba(239, 68, 68, 0.08);
+          border: 1px solid rgba(239, 68, 68, 0.25);
+          border-radius: 10px;
+          padding: 12px 14px;
+          margin-bottom: 20px;
+          color: #f87171;
+          font-size: 13px;
+          line-height: 1.5;
+        }
+        .error-box svg { margin-top: 1px; flex-shrink: 0; }
+
+        /* Field */
+        .field {
+          margin-bottom: 16px;
+        }
+        .field label {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 12px;
+          font-weight: 500;
+          color: #9ca3af;
+          text-transform: uppercase;
+          letter-spacing: 0.6px;
+          margin-bottom: 8px;
+        }
+        .field-input {
+          position: relative;
+        }
+        .field-input input {
+          width: 100%;
+          box-sizing: border-box;
+          padding: 11px 14px;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 10px;
+          color: #f9fafb;
+          font-size: 14px;
+          font-family: 'Inter', sans-serif;
+          outline: none;
+          transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .field-input input::placeholder { color: #374151; }
+        .field-input input:focus {
+          border-color: #2563eb;
+          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        /* Submit */
+        .submit-btn {
+          width: 100%;
+          margin-top: 8px;
+          padding: 12px;
+          background: #1d4ed8;
+          border: none;
+          border-radius: 10px;
+          color: #fff;
+          font-size: 14px;
+          font-weight: 600;
+          font-family: 'Inter', sans-serif;
+          cursor: pointer;
+          transition: background 0.2s, box-shadow 0.2s, opacity 0.2s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          box-shadow: 0 4px 16px rgba(29, 78, 216, 0.3);
+        }
+        .submit-btn:hover:not(:disabled) {
+          background: #2563eb;
+          box-shadow: 0 4px 24px rgba(37, 99, 235, 0.45);
+        }
+        .submit-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+        .spinner {
+          width: 16px; height: 16px;
+          border: 2px solid rgba(255,255,255,0.3);
+          border-top-color: #fff;
+          border-radius: 50%;
+          animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .form-footer {
+          margin-top: 24px;
+          text-align: center;
+          font-size: 12px;
+          color: #4b5563;
+          line-height: 1.6;
+        }
+        .form-footer a {
+          color: #3b82f6;
+          cursor: pointer;
+          text-decoration: none;
+        }
+        .form-footer a:hover { text-decoration: underline; }
+
+        /* Divider */
+        .divider {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin: 24px 0;
+        }
+        .divider-line {
+          flex: 1;
+          height: 1px;
+          background: rgba(255,255,255,0.07);
+        }
+        .divider-text {
+          font-size: 11px;
+          color: #374151;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+
+        /* Tag */
+        .version-tag {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: rgba(29, 78, 216, 0.12);
+          border: 1px solid rgba(29, 78, 216, 0.25);
+          border-radius: 20px;
+          padding: 4px 12px;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 11px;
+          color: #60a5fa;
+          margin-bottom: 28px;
+        }
+        .version-dot {
+          width: 6px; height: 6px;
+          background: #3b82f6;
+          border-radius: 50%;
+          animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.4; }
+        }
+      `}</style>
+
+      <div className="auth-root">
+        <div className="glow-orb glow-orb-1" />
+        <div className="glow-orb glow-orb-2" />
+
+        {/* Left panel */}
+        <div className="auth-left">
+          <div className="brand-mark">
+            <div className="brand-icon">
+              <Activity size={20} color="#fff" />
+            </div>
+            <span className="brand-name">NetForge</span>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">NetForge</h1>
-          <p className="text-slate-400">IT Infrastructure Management</p>
+
+          <div className="left-headline">
+            <div className="version-tag">
+              <span className="version-dot" />
+              v1.0 · Infrastructure Platform
+            </div>
+            <h2>
+              Manage your<br />
+              <strong>network infrastructure</strong><br />
+              with precision.
+            </h2>
+            <p>
+              A unified platform for DCIM, IPAM, virtualization,
+              circuit management and network diagramming —
+              built for modern IT teams.
+            </p>
+          </div>
+
+          <div className="stat-row">
+            <div className="stat-card">
+              <div className="stat-value">DCIM</div>
+              <div className="stat-label">Data Center</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-value">IPAM</div>
+              <div className="stat-label">IP Management</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-value">NOC</div>
+              <div className="stat-label">Network Ops</div>
+            </div>
+          </div>
         </div>
 
-        <div className="bg-slate-800 rounded-lg shadow-xl p-8 border border-slate-700">
-          <div className="flex gap-2 mb-6">
-            <button
-              onClick={() => setIsLogin(true)}
-              className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
-                isLogin
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-              }`}
-            >
-              Sign In
-            </button>
-            <button
-              onClick={() => setIsLogin(false)}
-              className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
-                !isLogin
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-              }`}
-            >
-              Sign Up
-            </button>
-          </div>
-
-          {error && (
-            <div className="mb-4 p-3 bg-red-500/10 border border-red-500 rounded-lg text-red-400 text-sm">
-              {error}
+        {/* Right panel */}
+        <div className="auth-right">
+          <div className="form-card">
+            {/* Mobile-only brand */}
+            <div className="mobile-brand">
+              <div className="brand-icon">
+                <Activity size={18} color="#fff" />
+              </div>
+              <span className="brand-name">NetForge</span>
             </div>
-          )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {!isLogin && (
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  <User className="w-4 h-4 inline mr-1" />
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required={!isLogin}
-                  className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="John Doe"
-                />
+            <div className="form-heading">
+              <h1>{isLogin ? 'Welcome back' : 'Create account'}</h1>
+              <p>
+                {isLogin
+                  ? 'Sign in to your NetForge workspace'
+                  : 'Get started with NetForge today'}
+              </p>
+            </div>
+
+            <div className="tab-switch">
+              <button
+                className={`tab-btn ${isLogin ? 'active' : ''}`}
+                onClick={() => switchMode(true)}
+              >
+                Sign In
+              </button>
+              <button
+                className={`tab-btn ${!isLogin ? 'active' : ''}`}
+                onClick={() => switchMode(false)}
+              >
+                Sign Up
+              </button>
+            </div>
+
+            {error && (
+              <div className="error-box">
+                <AlertCircle size={15} />
+                <span>{error}</span>
               </div>
             )}
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                <Mail className="w-4 h-4 inline mr-1" />
-                Email
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="admin@example.com"
-              />
+            <form onSubmit={handleSubmit}>
+              {!isLogin && (
+                <div className="field">
+                  <label><User size={11} /> Full Name</label>
+                  <div className="field-input">
+                    <input
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required={!isLogin}
+                      placeholder="Jane Smith"
+                      autoComplete="name"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="field">
+                <label><Mail size={11} /> Email Address</label>
+                <div className="field-input">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    placeholder="admin@example.com"
+                    autoComplete="email"
+                  />
+                </div>
+              </div>
+
+              <div className="field">
+                <label><Lock size={11} /> Password</label>
+                <div className="field-input">
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={8}
+                    placeholder={isLogin ? '••••••••' : 'Min. 8 characters'}
+                    autoComplete={isLogin ? 'current-password' : 'new-password'}
+                  />
+                </div>
+              </div>
+
+              <button type="submit" className="submit-btn" disabled={loading}>
+                {loading ? (
+                  <span className="spinner" />
+                ) : (
+                  <>
+                    {isLogin ? 'Sign In' : 'Create Account'}
+                    <ArrowRight size={15} />
+                  </>
+                )}
+              </button>
+            </form>
+
+            <div className="divider">
+              <span className="divider-line" />
+              <span className="divider-text">or</span>
+              <span className="divider-line" />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                <Lock className="w-4 h-4 inline mr-1" />
-                Password
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={8}
-                className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Min. 8 characters"
-              />
+            <div className="form-footer">
+              {isLogin ? (
+                <>
+                  Don't have an account?{' '}
+                  <a onClick={() => switchMode(false)}>Create one</a>
+                </>
+              ) : (
+                <>
+                  Already have an account?{' '}
+                  <a onClick={() => switchMode(true)}>Sign in</a>
+                </>
+              )}
+              <br />
+              <span style={{ marginTop: 8, display: 'block' }}>
+                By continuing you agree to our{' '}
+                <a>Terms of Service</a> &amp; <a>Privacy Policy</a>
+              </span>
             </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-            >
-              {loading ? 'Please wait...' : isLogin ? 'Sign In' : 'Create Account'}
-            </button>
-          </form>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
