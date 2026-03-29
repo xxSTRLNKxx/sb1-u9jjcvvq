@@ -39,7 +39,7 @@ export function AuthPage() {
 
         .auth-root {
           min-height: 100vh;
-          background-color: #080C14;
+          background-color: #0D1220;
           display: flex;
           font-family: 'Inter', sans-serif;
           overflow: hidden;
@@ -52,8 +52,8 @@ export function AuthPage() {
           position: fixed;
           inset: 0;
           background-image:
-            linear-gradient(rgba(30, 64, 175, 0.07) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(30, 64, 175, 0.07) 1px, transparent 1px);
+            linear-gradient(rgba(79, 110, 247, 0.07) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(79, 110, 247, 0.07) 1px, transparent 1px);
           background-size: 40px 40px;
           mask-image: radial-gradient(ellipse 80% 80% at 50% 0%, black 30%, transparent 100%);
           pointer-events: none;
@@ -70,13 +70,13 @@ export function AuthPage() {
         }
         .glow-orb-1 {
           width: 500px; height: 500px;
-          background: #1d4ed8;
+          background: #4F6EF7;
           top: -150px; left: -150px;
           animation-delay: 0s;
         }
         .glow-orb-2 {
           width: 350px; height: 350px;
-          background: #0e7490;
+          background: #6D28D9;
           bottom: -100px; right: -80px;
           animation-delay: -5s;
           opacity: 0.18;
@@ -107,10 +107,10 @@ export function AuthPage() {
         }
         .brand-icon {
           width: 38px; height: 38px;
-          background: #1d4ed8;
+          background: #4F6EF7;
           border-radius: 10px;
           display: flex; align-items: center; justify-content: center;
-          box-shadow: 0 0 24px rgba(29, 78, 216, 0.5);
+          box-shadow: 0 0 24px rgba(79, 110, 247, 0.5);
         }
         .brand-name {
           font-family: 'JetBrains Mono', monospace;
@@ -133,7 +133,7 @@ export function AuthPage() {
         }
         .left-headline h2 strong {
           font-weight: 600;
-          color: #60a5fa;
+          color: #93AFFF;
         }
         .left-headline p {
           font-size: 15px;
@@ -243,9 +243,9 @@ export function AuthPage() {
           color: #6b7280;
         }
         .tab-btn.active {
-          background: #1d4ed8;
+          background: #4F6EF7;
           color: #fff;
-          box-shadow: 0 2px 8px rgba(29, 78, 216, 0.35);
+          box-shadow: 0 2px 8px rgba(79, 110, 247, 0.35);
         }
         .tab-btn:not(.active):hover {
           color: #d1d5db;
@@ -292,7 +292,7 @@ export function AuthPage() {
           background: rgba(255,255,255,0.04);
           border: 1px solid rgba(255,255,255,0.1);
           border-radius: 10px;
-          color: #f9fafb;
+          color: #EEF2FF;
           font-size: 14px;
           font-family: 'Inter', sans-serif;
           outline: none;
@@ -300,8 +300,8 @@ export function AuthPage() {
         }
         .field-input input::placeholder { color: #374151; }
         .field-input input:focus {
-          border-color: #2563eb;
-          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+          border-color: #6175F8;
+          box-shadow: 0 0 0 3px rgba(97, 117, 248, 0.15);
         }
 
         /* Submit */
@@ -309,7 +309,7 @@ export function AuthPage() {
           width: 100%;
           margin-top: 8px;
           padding: 12px;
-          background: #1d4ed8;
+          background: #4F6EF7;
           border: none;
           border-radius: 10px;
           color: #fff;
@@ -322,11 +322,11 @@ export function AuthPage() {
           align-items: center;
           justify-content: center;
           gap: 8px;
-          box-shadow: 0 4px 16px rgba(29, 78, 216, 0.3);
+          box-shadow: 0 4px 16px rgba(79, 110, 247, 0.3);
         }
         .submit-btn:hover:not(:disabled) {
-          background: #2563eb;
-          box-shadow: 0 4px 24px rgba(37, 99, 235, 0.45);
+          background: #6175F8;
+          box-shadow: 0 4px 24px rgba(97, 117, 248, 0.45);
         }
         .submit-btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
@@ -347,7 +347,7 @@ export function AuthPage() {
           line-height: 1.6;
         }
         .form-footer a {
-          color: #3b82f6;
+          color: #6B8EFF;
           cursor: pointer;
           text-decoration: none;
         }
@@ -377,18 +377,18 @@ export function AuthPage() {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          background: rgba(29, 78, 216, 0.12);
-          border: 1px solid rgba(29, 78, 216, 0.25);
+          background: rgba(79, 110, 247, 0.12);
+          border: 1px solid rgba(79, 110, 247, 0.25);
           border-radius: 20px;
           padding: 4px 12px;
           font-family: 'JetBrains Mono', monospace;
           font-size: 11px;
-          color: #60a5fa;
+          color: #93AFFF;
           margin-bottom: 28px;
         }
         .version-dot {
           width: 6px; height: 6px;
-          background: #3b82f6;
+          background: #6B8EFF;
           border-radius: 50%;
           animation: pulse 2s ease-in-out infinite;
         }
@@ -408,38 +408,38 @@ export function AuthPage() {
             <div className="brand-icon">
               <Activity size={20} color="#fff" />
             </div>
-            <span className="brand-name">NetForge</span>
+            <span className="brand-name">Aetheria</span>
           </div>
 
           <div className="left-headline">
             <div className="version-tag">
               <span className="version-dot" />
-              v1.0 · Infrastructure Platform
+              v1.0 · Every Aether, One Platform
             </div>
             <h2>
-              Manage your<br />
-              <strong>network infrastructure</strong><br />
-              with precision.
+              Every corner of<br />
+              <strong>IT operations,</strong><br />
+              unified.
             </h2>
             <p>
-              A unified platform for DCIM, IPAM, virtualization,
-              circuit management and network diagramming —
-              built for modern IT teams.
+              Aetheria brings every IT role together —
+              network engineers, managers, sysadmins, and
+              procurement teams — one platform, every Aether.
             </p>
           </div>
 
           <div className="stat-row">
             <div className="stat-card">
-              <div className="stat-value">DCIM</div>
-              <div className="stat-label">Data Center</div>
+              <div className="stat-value">Infra</div>
+              <div className="stat-label">Infrastructure Aether</div>
             </div>
             <div className="stat-card">
-              <div className="stat-value">IPAM</div>
-              <div className="stat-label">IP Management</div>
+              <div className="stat-value">Network</div>
+              <div className="stat-label">Network Aether</div>
             </div>
             <div className="stat-card">
-              <div className="stat-value">NOC</div>
-              <div className="stat-label">Network Ops</div>
+              <div className="stat-value">Assets</div>
+              <div className="stat-label">Asset Aether</div>
             </div>
           </div>
         </div>
@@ -452,15 +452,15 @@ export function AuthPage() {
               <div className="brand-icon">
                 <Activity size={18} color="#fff" />
               </div>
-              <span className="brand-name">NetForge</span>
+              <span className="brand-name">Aetheria</span>
             </div>
 
             <div className="form-heading">
               <h1>{isLogin ? 'Welcome back' : 'Create account'}</h1>
               <p>
                 {isLogin
-                  ? 'Sign in to your NetForge workspace'
-                  : 'Get started with NetForge today'}
+                  ? 'Sign in to your Aetheria workspace'
+                  : 'Begin your Aetheria journey'}
               </p>
             </div>
 
@@ -573,4 +573,4 @@ export function AuthPage() {
       </div>
     </>
   );
-}
+} 
